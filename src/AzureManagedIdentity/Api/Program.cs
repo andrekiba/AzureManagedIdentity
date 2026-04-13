@@ -119,14 +119,19 @@ app.MapGet("/keys", async (IAzureClientFactory<KeyClient> factory) =>
 {
     var client = factory.CreateClient("keys");
     var result = await client.CreateRsaKeyAsync(new CreateRsaKeyOptions("test") { KeySize = 2048 });
-    return $"Key {result.Value.Name} creata." ; 
+    return $"Key \"{result.Value.Name}\" creata." ; 
 });
 
 app.MapGet("/certificates", async (IAzureClientFactory<CertificateClient> factory) =>
 {
     var client = factory.CreateClient("certificates");
-    var result = await client.StartCreateCertificateAsync("test", new CertificatePolicy { Exportable = true });
-    return $"Certificato {result.Value.Name} con ID {result.Value.Id} creato." ; 
+    var cert = await client.GetCertificateAsync("test1");
+    if (cert.HasValue)
+        return $"Certificato {cert.Value.Name} già esistente con ID {cert.Value.Id}.";
+    
+    var certOperation = await client.StartCreateCertificateAsync("test1", 
+        new CertificatePolicy(WellKnownIssuerNames.Self, "CN=test1") { Exportable = true });
+    return $"Operazione di creazione del certificato {certOperation.Id} in sospeso.";
 });
 
 app.MapGet("/bus", async (IAzureClientFactory<ServiceBusAdministrationClient> adminFactory,
