@@ -82,7 +82,7 @@ app.MapGet("/blobs", async (IAzureClientFactory<BlobServiceClient> factory) =>
     var containerClient = client.GetBlobContainerClient("test");
     var blobClient = containerClient.GetBlobClient("hello.txt");
     var result = await blobClient.UploadAsync(BinaryData.FromString("Ciao!"), overwrite: true);
-    return $"Blob versione {result.Value.VersionId} aggiunto con successo in data: {result.Value.LastModified}.";
+    return $"Blob aggiunto con successo in data: {result.Value.LastModified}.";
 });
 
 app.MapGet("/queues", async (IAzureClientFactory<QueueServiceClient> factory) =>
